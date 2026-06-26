@@ -1,5 +1,5 @@
 {
-  "name": "mdsync",
+  "name": "md-sync",
   "displayName": "MD Sync",
   "description": "Live markdown preview side by side with bidirectional cursor and scroll sync",
   "version": "0.0.1",
