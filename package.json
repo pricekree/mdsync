@@ -2,7 +2,7 @@
   "name": "md-sync",
   "displayName": "MD Sync",
   "description": "MDSync provides a live Markdown preview with bidirectional cursor and scroll synchronization.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "GauravSaroha",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -15,25 +15,24 @@
     "url": "https://github.com/pricekree/mdsync/issues"
   },
   "keywords": [
-    "mdsync",
-    "md-sync",
     "markdown",
     "md",
     "markdown preview",
-    "live preview",
     "preview",
+    "live preview",
     "scroll sync",
     "cursor sync",
-    "editor",
-    "documentation"
+    "documentation",
+    "readme",
+    "mdsync",
+    "md-sync"
   ],
-
   "engines": {
     "vscode": "^1.85.0"
   },
 
   "categories": [
-    "Markdown"
+    "Other"
   ],
 
   "activationEvents": [
