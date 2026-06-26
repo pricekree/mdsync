@@ -1,9 +1,10 @@
 {
   "name": "mdsync",
-  "displayName": "MD Live",
-  "description": "Live markdown preview side by side with bidirectional cursor sync",
-  "version": "0.1.0",
-  "publisher": "mdsync",
+  "displayName": "MD Sync",
+  "description": "Live markdown preview side by side with bidirectional cursor and scroll sync",
+  "version": "0.0.1",
+  "publisher": "GauravSaroha",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -18,7 +19,7 @@
     "commands": [
       {
         "command": "mdsync.openPreview",
-        "title": "MD Live: Open Preview Side by Side",
+        "title": "MD Sync: Open Preview Side by Side",
         "icon": "$(open-preview)"
       }
     ],
@@ -44,7 +45,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "vdce package --allow-missing-repository"
+    "package": "vsce package --allow-missing-repository"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

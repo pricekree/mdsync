@@ -1,2 +1,10 @@
-.vscode-test
+.vscode/**
+src/**
+tsconfig.json
+**/*.ts
+**/*.map
+.git/**
+.cursor/**
+sample.md
 *.vsix
+**/.DS_Store
