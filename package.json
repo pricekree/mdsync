@@ -1,20 +1,47 @@
 {
   "name": "md-sync",
   "displayName": "MD Sync",
-  "description": "Live markdown preview side by side with bidirectional cursor and scroll sync",
-  "version": "0.0.1",
+  "description": "MDSync provides a live Markdown preview with bidirectional cursor and scroll synchronization.",
+  "version": "0.0.2",
   "publisher": "GauravSaroha",
   "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pricekree/mdsync.git"
+  },
+  "homepage": "https://github.com/pricekree/mdsync",
+  "bugs": {
+    "url": "https://github.com/pricekree/mdsync/issues"
+  },
+  "keywords": [
+    "mdsync",
+    "md-sync",
+    "markdown",
+    "md",
+    "markdown preview",
+    "live preview",
+    "preview",
+    "scroll sync",
+    "cursor sync",
+    "editor",
+    "documentation"
+  ],
+
   "engines": {
     "vscode": "^1.85.0"
   },
+
   "categories": [
-    "Other"
+    "Markdown"
   ],
+
   "activationEvents": [
     "onLanguage:markdown"
   ],
+
   "main": "./out/extension.js",
+
   "contributes": {
     "commands": [
       {
@@ -41,12 +68,14 @@
       }
     ]
   },
+
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "package": "vsce package --allow-missing-repository"
   },
+
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^20.0.0",
@@ -54,10 +83,12 @@
     "@vscode/vsce": "^3.9.2",
     "typescript": "^5.4.0"
   },
+
   "dependencies": {
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.0",
     "markdown-it-task-lists": "^2.1.1"
   },
+
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
