@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# TypeScript build output
+out/
+
+# Packaged extension
+*.vsix
+
+# VS Code extension test runner
+.vscode-test/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor swap / backup files
+*.swp
+*.swo
+*~
+
+# IDE (optional local settings; .vscode/ launch config is tracked)
+.idea/
+
+# Cursor local state (project rules in .cursor/rules/ remain trackable)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
