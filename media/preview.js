@@ -158,6 +158,44 @@
     });
   }
 
+  function renderMermaid() {
+    const nodes = document.querySelectorAll('pre.mermaid');
+    if (!nodes.length || typeof mermaid === 'undefined') {
+      return Promise.resolve();
+    }
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.body.classList.contains('vscode-light') ? 'default' : 'dark',
+      securityLevel: 'strict',
+    });
+    return mermaid.run({ nodes: Array.from(nodes), suppressErrors: true });
+  }
+
+  function scrollToAnchor(id) {
+    const el = document.getElementById(id);
+    if (!el) {
+      return;
+    }
+    lockScroll();
+    const rect = el.getBoundingClientRect();
+    const targetTop = window.scrollY + rect.top - window.innerHeight * 0.15;
+    window.scrollTo({ top: Math.max(0, targetTop), behavior: 'instant' });
+  }
+
+  function afterContentUpdate(msg) {
+    buildLineIndex();
+    return renderMermaid().then(() => {
+      if (msg.line !== undefined) {
+        scrollToLine(msg.line, true);
+      } else if (msg.scrollLine !== undefined) {
+        scrollToLine(msg.scrollLine, false);
+      } else if (msg.scrollRatio !== undefined) {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo(0, msg.scrollRatio * maxScroll);
+      }
+    });
+  }
+
   function onPreviewScroll() {
     if (scrollLock) {
       return;
@@ -184,12 +222,37 @@
       return;
     }
 
+    const anchor = e.target.closest('a[href]');
+    if (anchor) {
+      const href = anchor.getAttribute('href');
+      if (href && !href.startsWith('javascript:')) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (href.startsWith('#')) {
+          scrollToAnchor(href.slice(1));
+        }
+        vscode.postMessage({ type: 'openLink', href });
+        return;
+      }
+    }
+
     const line = getLineForElement(e.target);
     if (line !== null && !isNaN(line)) {
       lockScroll();
       highlightLine(line);
       lastSyncedLine = line;
       vscode.postMessage({ type: 'revealLine', line });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const checkbox = e.target.closest('.task-list-item-checkbox');
+    if (!checkbox) {
+      return;
+    }
+    const line = getLineForElement(checkbox);
+    if (line !== null && !isNaN(line)) {
+      vscode.postMessage({ type: 'toggleTask', line, checked: checkbox.checked });
     }
   });
 
@@ -201,22 +264,17 @@
       const scrollY = window.scrollY;
       const ratio = scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       document.getElementById('content').innerHTML = msg.html;
-      buildLineIndex();
-      if (msg.line !== undefined) {
-        scrollToLine(msg.line, true);
-      } else if (msg.scrollLine !== undefined) {
-        scrollToLine(msg.scrollLine, false);
-      } else {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        window.scrollTo(0, ratio * maxScroll);
-      }
+      afterContentUpdate({ scrollRatio: ratio });
     } else if (msg.type === 'scrollToLine') {
       scrollToLine(msg.line, false);
     } else if (msg.type === 'revealLine') {
       scrollToLine(msg.line, true);
+    } else if (msg.type === 'scrollToAnchor') {
+      scrollToAnchor(msg.id);
     }
   });
 
   buildLineIndex();
+  renderMermaid();
   vscode.postMessage({ type: 'ready' });
 })();

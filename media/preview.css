@@ -266,6 +266,166 @@ body.vscode-body {
   border-top: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
 }
 
+/* Front matter */
+#content .front-matter {
+  margin: 0 0 1.25em;
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  background: var(--vscode-sideBar-background, rgba(128, 128, 128, 0.08));
+  font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground, inherit);
+}
+
+#content .front-matter-line {
+  white-space: pre-wrap;
+}
+
+/* Mark / highlight */
+#content mark {
+  background: color-mix(in srgb, var(--vscode-editor-findMatchHighlightBackground, #ea5c0055) 70%, transparent);
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 2px;
+}
+
+/* Sub / sup */
+#content sub,
+#content sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+/* Definition lists */
+#content dl {
+  margin: 0 0 1em;
+}
+
+#content dt {
+  font-weight: 600;
+  margin-top: 0.75em;
+}
+
+#content dd {
+  margin: 0.25em 0 0 1.5em;
+}
+
+/* Footnotes */
+#content .footnote-ref a {
+  text-decoration: none;
+}
+
+#content .footnotes {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  font-size: 0.9em;
+}
+
+#content .footnotes-sep {
+  display: none;
+}
+
+#content .footnote-backref {
+  text-decoration: none;
+  margin-left: 0.25em;
+}
+
+/* Heading anchors — link icon on hover, no visible # */
+#content .header-anchor {
+  margin-right: 0.35em;
+  color: var(--vscode-descriptionForeground, rgba(128, 128, 128, 0.8));
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+#content .header-anchor::before {
+  content: '🔗';
+  font-size: 0.75em;
+}
+
+#content h1:hover .header-anchor,
+#content h2:hover .header-anchor,
+#content h3:hover .header-anchor,
+#content h4:hover .header-anchor,
+#content h5:hover .header-anchor,
+#content h6:hover .header-anchor,
+#content .header-anchor:focus {
+  opacity: 1;
+}
+
+#content th[align='center'],
+#content td[align='center'] {
+  text-align: center;
+}
+
+#content th[align='right'],
+#content td[align='right'] {
+  text-align: right;
+}
+
+#content th[align='left'],
+#content td[align='left'] {
+  text-align: left;
+}
+
+/* Inline heading images (common in README titles) */
+#content h1 img,
+#content h2 img,
+#content h3 img,
+#content h4 img,
+#content h5 img,
+#content h6 img {
+  vertical-align: middle;
+  margin-right: 0.35em;
+}
+
+/* Mermaid */
+#content pre.mermaid {
+  margin: 1em 0;
+  padding: 1em;
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  background: var(--vscode-editor-background);
+  font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+}
+
+#content pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Math */
+#content .katex-block {
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+/* Details / summary */
+#content details {
+  margin: 1em 0;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  border-radius: 6px;
+}
+
+#content summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* GitHub alerts — tweak for VS Code theme */
+#content .markdown-alert {
+  margin: 1em 0;
+  border-radius: 6px;
+}
+
 /* Sync highlight */
 #content [data-line] {
   cursor: default;

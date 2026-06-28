@@ -8,3 +8,5 @@ tsconfig.json
 sample.md
 *.vsix
 **/.DS_Store
+esbuild.js
+node_modules/**

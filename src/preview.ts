@@ -33,14 +33,21 @@ export class PreviewPanel {
   private constructor(extensionUri: vscode.Uri, resource: vscode.Uri) {
     this.resource = resource;
 
+    const docDir = vscode.Uri.joinPath(resource, '..');
+    const localRoots = [extensionUri, docDir];
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(resource);
+    if (workspaceFolder) {
+      localRoots.push(workspaceFolder.uri);
+    }
+
     this.panel = vscode.window.createWebviewPanel(
-      'mdsync.preview',
+      'mdlive.preview',
       `Preview: ${path.basename(resource.fsPath)}`,
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-        localResourceRoots: [extensionUri],
+        localResourceRoots: localRoots,
       }
     );
 
@@ -112,10 +119,20 @@ export class PreviewPanel {
     this.updateTimer = setTimeout(() => this.update(), UPDATE_MS);
   }
 
-  private onMessage(msg: { type: string; line?: number }) {
+  private onMessage(msg: { type: string; line?: number; href?: string; checked?: boolean }) {
     if (msg.type === 'ready') {
       this.webviewReady = true;
       this.update();
+      return;
+    }
+
+    if (msg.type === 'openLink' && msg.href) {
+      this.openLink(msg.href);
+      return;
+    }
+
+    if (msg.type === 'toggleTask' && msg.line !== undefined && msg.checked !== undefined) {
+      this.toggleTask(msg.line, msg.checked);
       return;
     }
 
@@ -164,6 +181,56 @@ export class PreviewPanel {
     };
   }
 
+  private openLink(href: string) {
+    if (/^https?:/i.test(href)) {
+      void vscode.env.openExternal(vscode.Uri.parse(href));
+      return;
+    }
+    if (href.startsWith('#')) {
+      this.panel.webview.postMessage({ type: 'scrollToAnchor', id: href.slice(1) });
+      return;
+    }
+    const target = vscode.Uri.joinPath(this.resource, '..', href);
+    void vscode.commands.executeCommand('vscode.open', target);
+  }
+
+  private toggleTask(line: number, checked: boolean) {
+    const doc = vscode.workspace.textDocuments.find(
+      (d) => d.uri.toString() === this.resource.toString()
+    );
+    if (!doc) {
+      return;
+    }
+    const lineText = doc.lineAt(line).text;
+    const unchecked = /^(\s*(?:[-*+]|\d+\.)\s+)\[ \](\s)/.exec(lineText);
+    const checkedMatch = /^(\s*(?:[-*+]|\d+\.)\s+)\[[xX]\](\s)/.exec(lineText);
+    let replacement: string | undefined;
+    if (checked && unchecked) {
+      replacement = `${unchecked[1]}[x]${unchecked[2]}${lineText.slice(unchecked[0].length)}`;
+    } else if (!checked && checkedMatch) {
+      replacement = `${checkedMatch[1]}[ ]${checkedMatch[2]}${lineText.slice(checkedMatch[0].length)}`;
+    }
+    if (!replacement) {
+      return;
+    }
+    const editor = vscode.window.visibleTextEditors.find(
+      (e) => e.document.uri.toString() === this.resource.toString()
+    );
+    if (!editor) {
+      return;
+    }
+    this.isSyncingFromPreview = true;
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+    }
+    this.syncTimer = setTimeout(() => {
+      this.isSyncingFromPreview = false;
+    }, 200);
+    void editor.edit((editBuilder) => {
+      editBuilder.replace(new vscode.Range(line, 0, line, lineText.length), replacement!);
+    });
+  }
+
   private update() {
     if (!this.webviewReady) {
       return;
@@ -200,18 +267,45 @@ export class PreviewPanel {
     const scriptUri = this.panel.webview.asWebviewUri(
       vscode.Uri.joinPath(extensionUri, 'media', 'preview.js')
     );
+    const katexCssUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(extensionUri, 'node_modules', 'katex', 'dist', 'katex.min.css')
+    );
+    const alertBaseCssUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(extensionUri, 'node_modules', 'markdown-it-github-alerts', 'styles', 'github-base.css')
+    );
+    const alertLightCssUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(extensionUri, 'node_modules', 'markdown-it-github-alerts', 'styles', 'github-colors-light.css')
+    );
+    const alertDarkCssUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(extensionUri, 'node_modules', 'markdown-it-github-alerts', 'styles', 'github-colors-dark-media.css')
+    );
+    const mermaidUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(extensionUri, 'node_modules', 'mermaid', 'dist', 'mermaid.min.js')
+    );
     const nonce = getNonce();
+    const csp = [
+      "default-src 'none'",
+      `style-src ${this.panel.webview.cspSource} 'unsafe-inline'`,
+      `script-src 'nonce-${nonce}'`,
+      `font-src ${this.panel.webview.cspSource}`,
+      `img-src ${this.panel.webview.cspSource} https: data:`,
+    ].join('; ');
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${this.panel.webview.cspSource} https: data:;">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="${katexCssUri}">
+  <link rel="stylesheet" href="${alertBaseCssUri}">
+  <link rel="stylesheet" href="${alertLightCssUri}">
+  <link rel="stylesheet" href="${alertDarkCssUri}">
   <link rel="stylesheet" href="${styleUri}">
 </head>
 <body class="vscode-body">
   <div id="content">${initialHtml}</div>
+  <script nonce="${nonce}" src="${mermaidUri}"></script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
